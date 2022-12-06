@@ -6,7 +6,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        string filepath = Directory.GetCurrentDirectory() + @"\" + "input1" + ".cav";
+        string filepath = Directory.GetCurrentDirectory() + @"\" + "generated30-1" + ".cav";
         string file = File.ReadAllText(filepath);
         BuildSolution(file);
 
@@ -58,8 +58,7 @@ class Program
 
         // Solve with A*, returns 0 when no route can be found
         AStar algorithm = new AStar(graph, connectionMatrix, N);
-        Stack<Node> path = algorithm.FindRoute();
-        //double distance = algorithm.EuclideanDistance(graph[4], graph[2]);
+        List<int> path = algorithm.FindRoute();
 
         // Output results to .csn file
     }
