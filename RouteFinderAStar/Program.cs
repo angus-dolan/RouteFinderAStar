@@ -38,10 +38,11 @@ class Program
         for (int i = 1; i < N * 2 + 1; i += 2)
         {
             Coordinates coordinates = new Coordinates(intArr[i], intArr[i + 1]);
-            graph.Add(new Node(coordinates));
+
+            graph.Add(new Node(coordinates, graph.Count));
         }
 
-        // Store connection matrix
+        // Create connection matrix
         int[,] connectionMatrix = new int[N, N];
         int row = 0;
         for (int i = N*2+1; i < intArr.Length; i+=N)
@@ -56,6 +57,9 @@ class Program
 
 
         // Solve with A*, returns 0 when no route can be found
+        AStar algorithm = new AStar(graph, connectionMatrix, N);
+        Stack<Node> path = algorithm.FindRoute();
+        //double distance = algorithm.EuclideanDistance(graph[4], graph[2]);
 
         // Output results to .csn file
     }
