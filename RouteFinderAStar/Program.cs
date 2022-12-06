@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Numerics;
 using RouteFinderAStar.AI;
 
 class Program
@@ -18,7 +19,8 @@ class Program
         //        string file = File.ReadAllText(filepath);
 
         //        BuildSolution(file);
-        //    } catch (FileNotFoundException) { }
+        //    }
+        //    catch (FileNotFoundException) { }
         //}
     }
 
@@ -31,17 +33,16 @@ class Program
         // Define N (number of nodes)
         int N = intArr[0];
 
-        // Store all node coordinates
-        List<int[]> graph = new List<int[]>();
-        for (int i = 1; i < N*2+1; i+=2)
+        // Create node graph
+        List<Node> graph = new List<Node>();
+        for (int i = 1; i < N * 2 + 1; i += 2)
         {
-            int[] coordinates = { intArr[i], intArr[i+1] };
-            graph.Add(coordinates);
+            Coordinates coordinates = new Coordinates(intArr[i], intArr[i + 1]);
+            graph.Add(new Node(coordinates));
         }
 
         // Store connection matrix
         int[,] connectionMatrix = new int[N, N];
-
         int row = 0;
         for (int i = N*2+1; i < intArr.Length; i+=N)
         {
@@ -50,7 +51,6 @@ class Program
             {
                 connectionMatrix[row, col] = intArr[i + col];
             }
-
             row++;
         }
 
