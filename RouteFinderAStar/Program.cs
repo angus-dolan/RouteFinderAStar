@@ -6,22 +6,22 @@ class Program
 {
     static void Main(string[] args)
     {
-        string filepath = Directory.GetCurrentDirectory() + @"\" + "generated30-1" + ".cav";
-        string file = File.ReadAllText(filepath);
-        BuildSolution(file);
+        //string filepath = Directory.GetCurrentDirectory() + @"\" + "generated30-1" + ".cav";
+        //string file = File.ReadAllText(filepath);
+        //BuildSolution(file);
 
         // Get cav file from args and begin application
-        //if (args.Length == 1)
-        //{
-        //    try
-        //    {
-        //        string filepath = Directory.GetCurrentDirectory() + @"\" + args[0] + ".cav";
-        //        string file = File.ReadAllText(filepath);
+        if (args.Length == 1)
+        {
+            try
+            {
+                string filepath = Directory.GetCurrentDirectory() + @"\" + args[0] + ".cav";
+                string file = File.ReadAllText(filepath);
 
-        //        BuildSolution(file);
-        //    }
-        //    catch (FileNotFoundException) { }
-        //}
+                BuildSolution(file);
+            }
+            catch (FileNotFoundException) { }
+        }
     }
 
     static void BuildSolution(string file)
@@ -60,6 +60,12 @@ class Program
         AStar algorithm = new AStar(graph, connectionMatrix, N);
         List<int> path = algorithm.FindRoute();
 
+        foreach (int i in path)
+        {
+            Console.Write(i + ", ");
+        }
+        Console.WriteLine();
+        
         // Output results to .csn file
     }
 }

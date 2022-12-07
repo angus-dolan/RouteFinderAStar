@@ -30,6 +30,7 @@ namespace RouteFinderAStar.AI
         // Node position in .cav file (0,1,2...)
         public int Position { get; set; }
 
+        // Weight is the distance between current node and parent node
         public double Weight { get; set; }
         // G is the distance between the current node and the start node
         public double G { get; set; }
@@ -53,16 +54,16 @@ namespace RouteFinderAStar.AI
             Coordinates = coordinates;
             Position = position;
 
-            G = -1;
+            G = 0;
             H = -1;
         }
     }
 
     public class AStar
     {
-        List<Node> Graph;
-        int[,] ConnectionMatrix;
-        int N;
+        public List<Node> Graph;
+        public int[,] ConnectionMatrix;
+        public int N;
 
         public AStar(List<Node> graph, int[,] connectionMatrix, int n)
         {
@@ -93,35 +94,29 @@ namespace RouteFinderAStar.AI
                 closedList.Add(current);
 
                 // Generate children
-                List<Node> children = ChildrenNodes(current);
+                List<Node> children = ChildrenNodes(current, endNode, closedList);
 
                 foreach (Node child in children)
                 {
                     // Check child hasn't already been visited
-                    if (!DeadEnd(child) && !closedList.Exists(x => x.Position == child.Position))
+                    if (!closedList.Exists(x => x.Position == child.Position))
                     {
-                        // Calculate G,H
-                        child.G = EuclideanDistance(child, current);
-                        child.H = EuclideanDistance(child, endNode);
-
                         // If child isn't in open list
-                        bool childInOpenList = false;
-                        Node currentChild = null;
+                        bool childPresent = false;
                         foreach (var node in openList.UnorderedItems)
                         {
                             if (node.Element.Position == child.Position)
                             {
-                                currentChild = node.Element;
-                                childInOpenList = true;
+                                childPresent = true;
                             }
                         }
 
-                        if (!childInOpenList)
+                        if (!childPresent)
                         {
-                            // Add child to open list
                             child.Parent = current;
                             child.Weight = EuclideanDistance(child, current);
-                            child.H += child.Weight;
+                            child.G = child.Parent.G + child.Weight;
+                            child.H = EuclideanDistance(child, endNode);
 
                             openList.Enqueue(child, child.F);
                         }
@@ -131,21 +126,23 @@ namespace RouteFinderAStar.AI
 
             // Determine path
             List<int> Path = new List<int>();
-            foreach (Node node in closedList)
-            {
-                Path.Add(node.Position + 1);
-            }
-            return Path;
+            Node temp = closedList[closedList.IndexOf(current)];
+            double Length = 0;
 
-            //Stack<Node> Path = new Stack<Node>();
-            //Node temp = closedList[closedList.IndexOf(current)];
-            //if (temp == null) return null;
-            //do
-            //{
-            //    Path.Push(temp);
-            //    temp = temp.Parent;
-            //} while (temp != startNode && temp != null);
-            //return Path;
+            if (temp == null) return Path;
+            do
+            {
+                Path.Add(temp.Position + 1);
+                Length += temp.Weight;
+                temp = temp.Parent;
+                
+            } while (temp.Position != startNode.Position && temp != null);
+            Path.Add(1);
+            Path.Reverse();
+
+            Console.WriteLine("Length: " + Length);
+
+            return Path;
         }
 
         public double EuclideanDistance(Node a, Node b)
@@ -153,25 +150,23 @@ namespace RouteFinderAStar.AI
             return Math.Sqrt((Math.Pow(a.Coordinates.X - b.Coordinates.X, 2) + Math.Pow(a.Coordinates.Y - b.Coordinates.Y, 2)));
         }
 
-        public List<Node> ChildrenNodes(Node current)
+        public List<Node> ChildrenNodes(Node current, Node endNode, List<Node> closedList)
         {
             List<Node> children = new List<Node>();
 
             for (int i = 0; i < N; i++)
             {
                 if (ConnectionMatrix[i, current.Position] == 1)
-                    children.Add(Graph[i]);
+                {
+                    Node child = Graph[i];
+                    if (current.Parent == null || child.Position != current.Parent.Position)
+                    {
+                        children.Add(child);
+                    }
+                }
             }
 
             return children;
-        }
-
-        public bool DeadEnd(Node node)
-        {
-            int count = ChildrenNodes(node).Count();
-            if (count == 0) return true;
-
-            return false;
         }
     }
 }
