@@ -6,7 +6,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        string filepath = Directory.GetCurrentDirectory() + @"\" + "generated500-1" + ".cav";
+        string filepath = Directory.GetCurrentDirectory() + @"\" + "generated500-3" + ".cav";
         string file = File.ReadAllText(filepath);
         BuildSolution(file);
 

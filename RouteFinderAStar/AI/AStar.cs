@@ -45,7 +45,7 @@ namespace RouteFinderAStar.AI
             get
             {
                 if (G != -1 && H != -1)
-                    return G + H;
+                    return G + H + Lookahead;
                 else 
                     return -1;
             }
@@ -121,10 +121,9 @@ namespace RouteFinderAStar.AI
                             child.Weight = EuclideanDistance(child, current);
                             child.G = child.Parent.G + child.Weight;
                             child.H = EuclideanDistance(child, endNode);
-                            //child.Lookahead = Lookahead(child);
+                            child.Lookahead = Lookahead(child);
 
-                            //if (child.Lookahead != -1)
-                                openList.Enqueue(child, child.F);
+                            openList.Enqueue(child, child.F);
                         }
                     }
                 }
