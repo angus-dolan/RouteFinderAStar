@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,6 +33,8 @@ namespace RouteFinderAStar.AI
 
         // Weight is the distance between current node and parent node
         public double Weight { get; set; }
+        // Lookahead 
+        public double Lookahead { get; set; }
         // G is the distance between the current node and the start node
         public double G { get; set; }
         // H is the heuristic — estimated distance from the current node to the end node
@@ -54,6 +57,7 @@ namespace RouteFinderAStar.AI
             Coordinates = coordinates;
             Position = position;
 
+            Lookahead = 0;
             G = 0;
             H = -1;
         }
@@ -94,7 +98,7 @@ namespace RouteFinderAStar.AI
                 closedList.Add(current);
 
                 // Generate children
-                List<Node> children = ChildrenNodes(current, endNode, closedList);
+                List<Node> children = ChildrenNodes(current);
 
                 foreach (Node child in children)
                 {
@@ -117,8 +121,10 @@ namespace RouteFinderAStar.AI
                             child.Weight = EuclideanDistance(child, current);
                             child.G = child.Parent.G + child.Weight;
                             child.H = EuclideanDistance(child, endNode);
+                            //child.Lookahead = Lookahead(child);
 
-                            openList.Enqueue(child, child.F);
+                            //if (child.Lookahead != -1)
+                                openList.Enqueue(child, child.F);
                         }
                     }
                 }
@@ -150,7 +156,7 @@ namespace RouteFinderAStar.AI
             return Math.Sqrt((Math.Pow(a.Coordinates.X - b.Coordinates.X, 2) + Math.Pow(a.Coordinates.Y - b.Coordinates.Y, 2)));
         }
 
-        public List<Node> ChildrenNodes(Node current, Node endNode, List<Node> closedList)
+        public List<Node> ChildrenNodes(Node current)
         {
             List<Node> children = new List<Node>();
 
@@ -167,6 +173,25 @@ namespace RouteFinderAStar.AI
             }
 
             return children;
+        }
+
+        public double Lookahead(Node current)
+        {
+            // Get all children of current
+            List<Node> children = ChildrenNodes(current);
+            if (children.Count == 0) return -1;
+
+            // Return the lowest child weight
+            double lowestWeight = 0;
+            foreach (Node child in children)
+            {
+                child.Weight = EuclideanDistance(current, child);
+
+                if (child.Weight < lowestWeight || lowestWeight == 0) 
+                    lowestWeight = child.Weight;
+            }
+
+            return lowestWeight;
         }
     }
 }
