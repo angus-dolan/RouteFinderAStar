@@ -1,33 +1,34 @@
 ﻿using System.IO;
 using System.Numerics;
-using RouteFinderAStar.AI;
+using RouteFinder.Dijkstra;
 
 class Program
 {
     static void Main(string[] args)
     {
-        //string filepath = Directory.GetCurrentDirectory() + @"\" + "generated30-1" + ".cav";
-        //string file = File.ReadAllText(filepath);
-        //BuildSolution(file);
+        //string filepath = Directory.GetCurrentDirectory() + @"\" + "generated500-3" + ".cav";
+        //string data = File.ReadAllText(filepath);
+        //BuildSolution(data);
 
-        // Get cav file from args and begin application
+        // Get cav data from args and begin application
         if (args.Length == 1)
         {
             try
             {
-                string filepath = Directory.GetCurrentDirectory() + @"\" + args[0] + ".cav";
-                string file = File.ReadAllText(filepath);
+                string filename = args[0];
+                string filepath = Directory.GetCurrentDirectory() + @"\" + filename + ".cav";
+                string data = File.ReadAllText(filepath);
 
-                BuildSolution(file);
+                BuildSolution(data, filename);
             }
             catch (FileNotFoundException) { }
         }
     }
 
-    static void BuildSolution(string file)
+    static void BuildSolution(string data, string filename)
     {
-        // Parse file contents
-        string[] stringArr = file.Split(",");
+        // Parse cav file contents
+        string[] stringArr = data.Split(",");
         int[] intArr = Array.ConvertAll(stringArr, s => int.Parse(s));
 
         // Define N (number of nodes)
@@ -42,10 +43,9 @@ class Program
             graph.Add(new Node(coordinates, graph.Count));
         }
 
-        // Create connection matrix
         int[,] connectionMatrix = new int[N, N];
         int row = 0;
-        for (int i = N*2+1; i < intArr.Length; i+=N)
+        for (int i = N * 2 + 1; i < intArr.Length; i += N)
         {
 
             for (int col = 0; col < N; col++)
@@ -55,17 +55,27 @@ class Program
             row++;
         }
 
-
-        // Solve with A*, returns 0 when no route can be found
-        AStar algorithm = new AStar(graph, connectionMatrix, N);
+        // Use Dijkstra to find shortest path
+        Dijkstra algorithm = new Dijkstra(graph, connectionMatrix, N);
         List<int> path = algorithm.FindRoute();
 
-        foreach (int i in path)
-        {
-            Console.Write(i + ", ");
-        }
-        Console.WriteLine();
-        
         // Output results to .csn file
+        string filepath = Directory.GetCurrentDirectory() + @"\" + filename + ".csn";
+        if (path.Count == 0)
+        {
+            // No path found
+            File.WriteAllText(filepath, "0");
+        }
+        else
+        {
+            // Path found
+            String strPath = "";
+            foreach (int i in path)
+            {
+                strPath += i + " ";
+            }
+
+            File.WriteAllText(filepath, strPath);
+        }
     }
 }
